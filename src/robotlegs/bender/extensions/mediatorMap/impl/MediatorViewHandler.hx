@@ -30,6 +30,8 @@ class MediatorViewHandler implements IViewHandler
 	private var _knownMappings = new Map<String,Dynamic>();
 
 	private var _factory:MediatorFactory;
+	
+	private static var nullObj:NullObj = new NullObj();
 
 	/*============================================================================*/
 	/* Constructor                                                                */
@@ -106,30 +108,38 @@ class MediatorViewHandler implements IViewHandler
 		var typeID = UID.classID(type);
 		
 		// we've seen this type before and nobody was interested
-		if (_knownMappings[typeID] == false)
+		if (_knownMappings[typeID]!=null && _knownMappings[typeID] == nullObj)
 			return null;
 
 		// we haven't seen this type before
 		if (_knownMappings[typeID] == null)
 		{
-			_knownMappings[typeID] = false;
+			_knownMappings[typeID] = nullObj;
 			for (i in 0..._mappings.length)
 			{
 				mapping = _mappings[i];
 				if (mapping.matcher.matches(item))
 				{
-					if (_knownMappings[typeID] == false) {
+					if (_knownMappings[typeID] == nullObj) {
 						_knownMappings[typeID] = [];
 					}
 					_knownMappings[typeID].push(mapping);
 				}
 			}
 			// nobody cares, let's get out of here
-			if (_knownMappings[typeID] == false)
+			if (_knownMappings[typeID] == nullObj)
 				return null;
 		}
 
 		// these mappings really do care
 		return cast(_knownMappings[typeID], Array<Dynamic>);
+	}
+}
+
+class NullObj{
+	public function new(){
+	}
+	public function toString(){
+		return "[Custom Null Obj]";
 	}
 }
